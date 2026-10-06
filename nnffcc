@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>메뉴추천!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  :root { --top: env(safe-area-inset-top, 0px); --bottom: env(safe-area-inset-bottom, 0px); }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: 'Jua', sans-serif;
+    background: #ffffff;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: calc(18px + var(--top)) 18px calc(80px + var(--bottom));
+    overflow-x: hidden;
+  }
+  .reset-btn {
+    position: fixed; top: calc(12px + var(--top)); right: 14px;
+    font-family: 'Jua', sans-serif; font-size: 12px; color: #000000;
+    background: rgba(255,255,255,0.8); border: none; border-radius: 20px;
+    padding: 7px 14px; cursor: pointer; z-index: 50;
+    box-shadow: 0 2px 6px rgba(190,130,50,0.2);
+  }
+  .title-wrap { margin-top: 30px; margin-bottom: 18px; text-align: center; }
+  .title {
+    font-size: 32px; color: #000;
+    animation: pop 1.8s ease-in-out infinite;
+  }
+  @keyframes pop { 0%,100% { transform: scale(1) rotate(-1deg);} 50% { transform: scale(1.06) rotate(1deg);} }
+  .section-label {
+    align-self: flex-start; max-width: 380px; width: 100%; font-size: 18px;
+    color: #000; margin: 16px 0 10px 2px;
+  }
+  .menu-list, .dessert-list { width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 14px; }
+  .menu-card {
+    background: rgba(255,255,255,0.9); border-radius: 22px; padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px;
+    box-shadow: 0 4px 14px rgba(210,150,70,0.18);
+    border: 2px solid #ffe8cc;
+  }
+  .emoji { font-size: 32px; flex-shrink: 0; }
+  .card-text { flex: 1; min-width: 0; }
+  .badge { display: inline-block; font-size: 12px; color: #fff; background: #000000; border-radius: 14px; padding: 3px 10px; margin-bottom: 4px; }
+  .food-name { font-size: 17px; color: #6b5744; word-break: keep-all; }
+  .mini-retry-btn {
+    flex-shrink: 0; font-family: 'Jua', sans-serif; font-size: 12px; color: #fff;
+    background: #4ecdc4; border: none; border-radius: 16px; padding: 8px 10px; cursor: pointer;
+  }
+  .mini-retry-btn:active { transform: scale(0.95); }
+  .retry-btn {
+    margin-top: 20px; font-family: 'Jua', sans-serif; font-size: 17px; color: #fff;
+    background: #000000; border: none; border-radius: 26px;
+    padding: 12px 28px; cursor: pointer; box-shadow: 0 4px 12px rgba(220,140,40,0.3);
+  }
+  .retry-btn:active { transform: scale(0.97); }
+  .page { width: 100%; display: flex; flex-direction: column; align-items: center; }
+  .review-board { width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 14px; }
+  .review-form {
+    background: rgba(255,255,255,0.95); border-radius: 20px; padding: 14px 16px;
+    box-shadow: 0 4px 14px rgba(210,150,70,0.18); border: 2px solid #ffe8cc;
+  }
+  .review-form input, .review-form textarea {
+    width: 100%; font-family: 'Jua', sans-serif; border: 2px solid #ffe8cc; border-radius: 12px;
+    padding: 8px 10px; margin-bottom: 8px; font-size: 14px; color: #6b5744;
+  }
+  .review-form textarea { resize: none; height: 54px; }
+  .submit-btn {
+    font-family: 'Jua', sans-serif; font-size: 14px; color: #fff; background: #000000;
+    border: none; border-radius: 14px; padding: 8px 18px; cursor: pointer; display: block; margin: 0 auto;
+  }
+  .board-note { font-size: 12px; color: #b08a5a; text-align: center; margin-top: 4px; }
+  .chalkboard {
+    background:
+      radial-gradient(circle at 10% 15%, rgba(255,255,255,0.04) 0 1px, transparent 2px),
+      radial-gradient(circle at 60% 70%, rgba(255,255,255,0.05) 0 1px, transparent 2px),
+      radial-gradient(circle at 80% 30%, rgba(255,255,255,0.03) 0 1px, transparent 2px),
+      linear-gradient(160deg, #2f4d3f 0%, #24392e 100%);
+    background-size: 40px 40px, 50px 50px, 35px 35px, 100% 100%;
+    border: 10px solid #8a6440;
+    border-radius: 10px;
+    padding: 16px 14px;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.25), inset 0 0 20px rgba(0,0,0,0.25);
+  }
+  .review-item {
+    font-family: 'Gaegu', cursive;
+    color: #fdf6e3;
+    font-size: 16px;
+    line-height: 1.4;
+    text-shadow: 0 0 3px rgba(255,255,255,0.25);
+    padding-bottom: 8px;
+    border-bottom: 1px dashed rgba(255,255,255,0.2);
+  }
+  .review-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .review-item b { color: #ffe066; font-weight: 700; }
+  .review-empty {
+    font-family: 'Gaegu', cursive; text-align: center; color: rgba(255,255,255,0.55);
+    font-size: 15px; padding: 12px;
+  }
+  .page-nav {
+    position: fixed; bottom: calc(14px + var(--bottom)); left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 14px; background: rgba(255,255,255,0.85);
+    border-radius: 30px; padding: 8px 14px; box-shadow: 0 4px 14px rgba(210,150,70,0.25); z-index: 40;
+  }
+  .nav-btn { font-family: 'Jua', sans-serif; font-size: 13px; color: #000000; background: none; border: none; cursor: pointer; padding: 4px 8px; }
+  .nav-btn:disabled { opacity: 0.35; cursor: default; }
+  .dots { display: flex; gap: 6px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #ffe8cc; }
+  .dot.active { background: #000000; }
+  .toast {
+    position: fixed; top: 30%; left: 50%; transform: translate(-50%,-50%) scale(0.5);
+    background: #fff; color: #000000; font-family: 'Jua', sans-serif; font-size: 24px;
+    padding: 16px 28px; border-radius: 22px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    opacity: 0; z-index: 1300; transition: all 0.25s ease; pointer-events: none; text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+  .confetti-piece { position: fixed; top: -24px; font-size: 22px; pointer-events: none; z-index: 1200; }
+  @keyframes confettiFall { 0% { transform: translateY(0) rotate(0deg); opacity: 1;} 100% { transform: translateY(100vh) rotate(360deg); opacity: 0;} }
+</style>
+</head>
+<body>
+
+<button class="reset-btn" id="resetBtn">초기화</button>
+<div class="title-wrap"><div class="title">🥢 메뉴추천! 🥄</div></div>
+
+<div class="page" id="page1">
+  <div class="section-label">🍽️ 오늘의 메뉴</div>
+  <div class="menu-list" id="menuList"></div>
+  <button class="retry-btn" id="retryAllBtn">🔄 전체 다시 돌리기</button>
+  <div class="section-label">🍰 디저트</div>
+  <div class="dessert-list" id="dessertList"></div>
+</div>
+
+<div class="page" id="page2" style="display:none">
+  <div class="section-label">📝 후기 게시판</div>
+  <div class="review-board">
+    <div class="review-form">
+      <input id="nickInput" placeholder="닉네임" maxlength="12">
+      <textarea id="reviewInput" placeholder="오늘 뽑힌 메뉴 어땠나요?" maxlength="120"></textarea>
+      <button class="submit-btn" id="submitReview">✏️ 분필로 남기기</button>
+      <div class="board-note" id="boardNote">다같이 보는 후기예요 🍬</div>
+    </div>
+    <div class="chalkboard" id="reviewList"></div>
+  </div>
+</div>
+
+<div class="page-nav">
+  <button class="nav-btn" id="prevBtn">← 이전</button>
+  <div class="dots"><span class="dot active" id="dot0"></span><span class="dot" id="dot1"></span></div>
+  <button class="nav-btn" id="nextBtn">다음 →</button>
+</div>
+
+<div class="toast" id="toast">맛있게 드세요! 🎉</div>
+
+<script>
+  var mealPools = {
+    breakfast: [["토스트와 계란후라이","🍳"],["시리얼과 우유","🥣"],["계란말이와 밥","🍚"],["김치찌개","🍲"],["누룽지","🍚"],["샌드위치","🥪"],["바나나와 요거트","🍌"]],
+    lunch: [["김치찌개","🍲"],["된장찌개","🍲"],["제육볶음","🍖"],["비빔밥","🍚"],["돈까스","🍱"],["짜장면","🍜"],["김밥","🍙"],["칼국수","🍜"],["냉면","🍜"]],
+    dinner: [["삼겹살","🥓"],["치킨","🍗"],["찜닭","🍗"],["갈비탕","🍲"],["볶음밥","🍚"],["파스타","🍝"],["초밥","🍣"],["떡볶이와 튀김","🍢"]]
+  };
+  var dessertPool = [["아이스크림","🍦"],["케이크","🍰"],["와플","🧇"],["도넛","🍩"],["초콜릿","🍫"],["붕어빵","🥮"],["과일화채","🍉"],["마카롱","🍬"]];
+  var labels = { breakfast:"아침메뉴", lunch:"점심메뉴", dinner:"저녁메뉴" };
+  var order = ["breakfast","lunch","dinner"];
+  var STATE_KEY = "menuStateV3";
+  function pick(pool){ return pool[Math.floor(Math.random()*pool.length)]; }
+  function loadState(){ try { var r=localStorage.getItem(STATE_KEY); return r?JSON.parse(r):null; } catch(e){ return null; } }
+  function saveState(s){ try { localStorage.setItem(STATE_KEY, JSON.stringify(s)); } catch(e){} }
+  function buildFreshState(){ var s={}; order.forEach(function(k){ s[k]=pick(mealPools[k]); }); s.dessert=pick(dessertPool); return s; }
+  var state = loadState() || buildFreshState();
+  saveState(state);
+
+  function renderMenu(){
+    var list = document.getElementById('menuList'); list.innerHTML = "";
+    order.forEach(function(key){
+      var item = state[key];
+      var card = document.createElement('div'); card.className = 'menu-card';
+      card.innerHTML = '<div class="emoji">'+item[1]+'</div><div class="card-text"><div class="badge">'+labels[key]+'</div><div class="food-name">'+item[0]+'</div></div>';
+      var btn = document.createElement('button'); btn.className='mini-retry-btn'; btn.textContent='다시 돌리기';
+      btn.addEventListener('click', function(){ state[key]=pick(mealPools[key]); saveState(state); renderMenu(); celebrate(); });
+      card.appendChild(btn); list.appendChild(card);
+    });
+  }
+  function renderDessert(){
+    var list = document.getElementById('dessertList'); var item = state.dessert; list.innerHTML = "";
+    var card = document.createElement('div'); card.className = 'menu-card';
+    card.innerHTML = '<div class="emoji">'+item[1]+'</div><div class="card-text"><div class="badge">디저트</div><div class="food-name">'+item[0]+'</div></div>';
+    var btn = document.createElement('button'); btn.className='mini-retry-btn'; btn.textContent='디저트 뽑기';
+    btn.addEventListener('click', function(){ state.dessert=pick(dessertPool); saveState(state); renderDessert(); celebrate(); });
+    card.appendChild(btn); list.appendChild(card);
+  }
+  function fireConfetti(){
+    var emojis=['🎉','✨','🎊','🌸'];
+    for (var i=0;i<20;i++){ (function(){
+      var span=document.createElement('span'); span.className='confetti-piece';
+      span.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+      span.style.left=Math.random()*100+'vw';
+      var d=1.2+Math.random()*0.8;
+      span.style.animation='confettiFall '+d+'s ease-in forwards';
+      span.style.animationDelay=(Math.random()*0.3)+'s';
+      document.body.appendChild(span);
+      setTimeout(function(){ span.remove(); }, (d+0.3)*1000);
+    })(); }
+  }
+  function celebrate(){ fireConfetti(); showMessage('맛있게 드세요! 🎉'); }
+  function showMessage(msg){
+    var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+    setTimeout(function(){ t.classList.remove('show'); }, 1500);
+  }
+  renderMenu(); renderDessert();
+
+  document.getElementById('retryAllBtn').addEventListener('click', function(){
+    order.forEach(function(k){ state[k]=pick(mealPools[k]); });
+    saveState(state); renderMenu(); celebrate();
+  });
+  document.getElementById('resetBtn').addEventListener('click', function(){
+    state = buildFreshState(); saveState(state); renderMenu(); renderDessert(); showMessage('초기화 완료! 🔄');
+  });
+
+  // page navigation
+  var pages = [document.getElementById('page1'), document.getElementById('page2')];
+  var dots = [document.getElementById('dot0'), document.getElementById('dot1')];
+  var curPage = 0;
+  function showPage(idx){
+    curPage = idx;
+    pages.forEach(function(p,i){ p.style.display = (i===idx) ? 'flex' : 'none'; });
+    dots.forEach(function(d,i){ d.classList.toggle('active', i===idx); });
+    document.getElementById('prevBtn').disabled = (idx===0);
+    document.getElementById('nextBtn').disabled = (idx===pages.length-1);
+  }
+  document.getElementById('prevBtn').addEventListener('click', function(){ if(curPage>0) showPage(curPage-1); });
+  document.getElementById('nextBtn').addEventListener('click', function(){ if(curPage<pages.length-1) showPage(curPage+1); });
+  showPage(0);
+
+  // shared review board (db capability)
+  var canWrite = true;
+  var reviewsCol = null;
+  (async function initBoard(){
+    try {
+      var db = await claude.use('db');
+      if (!db) { document.getElementById('boardNote').textContent = '이 페이지는 후기 게시판을 지원하지 않는 환경이에요.'; return; }
+      reviewsCol = db.collection('reviews');
+      reviewsCol.orderBy('createdAt','desc').limit(50).onSnapshot(function(snap){
+        var box = document.getElementById('reviewList');
+        if (snap.empty) { box.innerHTML = '<div class="review-empty">아직 후기가 없어요. 첫 후기를 남겨보세요!</div>'; return; }
+        box.innerHTML = '';
+        snap.docs.forEach(function(doc){
+          var d = doc.data();
+          var div = document.createElement('div'); div.className = 'review-item';
+          div.innerHTML = '<b>'+escapeHtml(d.name||'익명')+'</b> '+escapeHtml(d.text||'');
+          box.appendChild(div);
+        });
+      }, function(err){
+        document.getElementById('reviewList').innerHTML = '<div class="review-empty">후기를 불러오지 못했어요.</div>';
+      });
+    } catch(e) {
+      document.getElementById('boardNote').textContent = '이 페이지는 후기 게시판을 지원하지 않는 환경이에요.';
+    }
+  })();
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  document.getElementById('submitReview').addEventListener('click', async function(){
+    var name = document.getElementById('nickInput').value.trim();
+    var text = document.getElementById('reviewInput').value.trim();
+    if (!name || !text) { showMessage('닉네임과 후기를 입력해주세요!'); return; }
+    if (!reviewsCol || !canWrite) { showMessage('지금은 글쓰기가 제한되어 있어요.'); return; }
+    try {
+      await reviewsCol.add({ name: name, text: text, createdAt: Date.now() });
+      document.getElementById('nickInput').value = "";
+      document.getElementById('reviewInput').value = "";
+    } catch (e) {
+      canWrite = false;
+      document.getElementById('boardNote').textContent = '이 후기 게시판에는 초대된 멤버만 글을 남길 수 있어요.';
+      showMessage('글쓰기 권한이 없어요 😢');
+    }
+  });
+</script>
+
+</body>
+</html>
+
